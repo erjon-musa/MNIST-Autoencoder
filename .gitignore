@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# PyTorch model weights (too large for git)
+*.pth
+*.pt
+
+# Data directory (MNIST downloads automatically)
+data/
+
+# macOS metadata
+._*
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+.venv/
+venv/
+
+# Logs and temp files
+*.log
+*.txt
+!requirements.txt
