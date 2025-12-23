@@ -41,42 +41,34 @@ Beyond simple reconstruction, this project explores two powerful applications of
 The autoencoder uses a symmetric **encoder-decoder architecture** with a configurable bottleneck layer that controls the compression ratio.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           AUTOENCODER ARCHITECTURE                          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   INPUT                    ENCODER                      BOTTLENECK          │
-│  ┌───────┐              ┌─────────────┐               ┌───────────┐         │
-│  │ 28×28 │  ─────────▶  │  Flatten    │  ──────────▶  │  Latent   │         │
-│  │ Image │              │  (784)      │               │   Space   │         │
-│  └───────┘              └─────────────┘               │  (N=8)    │         │
-│                                │                      └───────────┘         │
-│                                ▼                            │               │
-│                         ┌─────────────┐                     │               │
-│                         │ Linear(784→392) + ReLU            │               │
-│                         └─────────────┘                     │               │
-│                                │                            │               │
-│                                ▼                            │               │
-│                         ┌─────────────┐                     │               │
-│                         │ Linear(392→N) + ReLU              │               │
-│                         └─────────────┘                     │               │
-│                                                             │               │
-├─────────────────────────────────────────────────────────────┼───────────────┤
-│                                                             │               │
-│                            DECODER                          │               │
-│                                                             ▼               │
-│                                                      ┌─────────────┐        │
-│                                                      │ Linear(N→392) + ReLU │
-│                                                      └─────────────┘        │
-│                                                             │               │
-│                                                             ▼               │
-│   OUTPUT                                             ┌─────────────┐        │
-│  ┌───────┐                                           │ Linear(392→784)      │
-│  │ 28×28 │  ◀────────────────  Reshape  ◀──────────  │ + Sigmoid   │        │
-│  │ Recon │                     (784→28×28)           └─────────────┘        │
-│  └───────┘                                                                  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+                    ┌─────────────────────────────────────────────────────────────────┐
+                    │                    FULLY CONNECTED AUTOENCODER                  │
+                    │                     (Dense/MLP Architecture)                    │
+                    └─────────────────────────────────────────────────────────────────┘
+
+    INPUT              fc1                   fc2          fc3                   fc4              OUTPUT
+   (28×28)         (784 → 392)          (392 → N)     (N → 392)           (392 → 784)          (28×28)
+   Flatten            + ReLU              + ReLU        + ReLU              + Sigmoid          Reshape
+
+     ●─┐          ┌──●──────────┐     ┌────●────┐     ┌────●────┐     ┌──────────●──┐           ┌─●
+     ●──┼────────▶│──●──────────│────▶│────●────│────▶│────●────│────▶│──────────●──│──────────▶├─●
+     ●──┤   ALL   │──●──────────│ ALL │────●────│ ALL │────●────│ ALL │──────────●──│   ALL     ├─●
+     ●──┤  NODES  │──●   EACH   │NODES│    ●    │NODES│────●────│NODES│  EACH    ●──│  NODES    ├─●
+     ●──┼─CONNECT─│──● CONNECTS │─────│────●────│─────│────●────│─────│ CONNECTS ●──│─CONNECT───├─●
+     ●──┤   TO    │──●   TO     │ TO  │    ●    │ TO  │────●────│ TO  │   TO     ●──│    TO     ├─●
+     ●──┤   ALL   │──●   ALL    │ ALL │    ●    │ ALL │────●────│ ALL │   ALL    ●──│   ALL     ├─●
+     ●──┘         │──●          │     │────●────│     │────●────│     │          ●──│           └─●
+     ⋮            │──●          │     └────●────┘     └────●────┘     │          ●──│            ⋮
+   (784)          │──●          │         (N)             (N)         │          ●──│          (784)
+                  │  ⋮          │     BOTTLENECK      BOTTLENECK      │          ⋮  │
+                  └──●──────────┘                                     └──────────●──┘
+                     (392)                                                (392)
+
+                  ◄─────────── ENCODER ───────────►     ◄─────────── DECODER ───────────►
+
+
+    Legend: ● = Neuron    ─────── = Every neuron connects to EVERY neuron in adjacent layer
+            This is what makes it "fully connected" (also called "dense" or "MLP")
 ```
 
 ### Layer Details
